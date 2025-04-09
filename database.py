@@ -14,7 +14,7 @@ engine = create_engine(
     DATABASE_URL,
     pool_size=10,              # コネクションプールサイズ
     max_overflow=20,           # 最大オーバーフロー接続数
-    pool_timeout=90,           # コネクション獲得待機時間（秒）
+    pool_timeout=30,           # コネクション獲得待機時間（秒）
     pool_recycle=1800,         # 接続リサイクル時間（秒）- MySQLのwait_timeout未満に設定
     pool_pre_ping=True,        # 接続前に接続テスト実行
     connect_args={
