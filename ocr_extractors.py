@@ -305,19 +305,19 @@ def extract_format3_data(ocr_text: str) -> Dict[str, Any]:
     
     # 顧客名の抽出
     result["customer"] = extract_field_by_regex(ocr_text, [
-        # r"Contract Party\s*:\s*(.*?)(?:\n|$)",
-        # r"B/L CONSIGNEE\s*:\s*(.*?)(?:\n|$)"
-        r"Contract\s+Party\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"B/L\s+CONSIGNEE\s*[:\-]?\s*(.*?)(?:\n|$)"
+        r"Contract Party\s*:\s*(.*?)(?:\n|$)",
+        r"B/L CONSIGNEE\s*:\s*(.*?)(?:\n|$)"
+        # r"Contract\s+Party\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"B/L\s+CONSIGNEE\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     # PO番号の抽出
     result["poNumber"] = extract_field_by_regex(ocr_text, [
-        # r"Order No\.\s*(.*?)(?:\n|Grade|Origin)",
-        # r"Buyers(?:'|')?\s+Order No\.\s*(.*?)(?:\n|Grade|$)"
-        r"Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
-        r"Buyers(?:'|’)?\s+Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
-        r"Order\s*Number\s*[:\-]?\s*([A-Z0-9\-]+)"
+        r"Order No\.\s*(.*?)(?:\n|Grade|Origin)",
+        r"Buyers(?:'|')?\s+Order No\.\s*(.*?)(?:\n|Grade|$)"
+        # r"Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
+        # r"Buyers(?:'|’)?\s+Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
+        # r"Order\s*Number\s*[:\-]?\s*([A-Z0-9\-]+)"
     ])
     
     # 通貨の抽出
@@ -328,22 +328,22 @@ def extract_format3_data(ocr_text: str) -> Dict[str, Any]:
         r"Grade\s+([A-Za-z0-9]+)"
     ])
     quantity = extract_field_by_regex(ocr_text, [
-        # r"Qt'y\s*\(mt\)\s*([\d.]+)"
-        r"Qt['’]?\s*\(mt\.*\)\s*[:\-]?\s*([\d,.]+)",
-        r"Quantity\s*[:\-]?\s*([\d,.]+)\s*(?:KG|kg|MT|mt)",
-        r"Qty\s*[:\-]?\s*([\d,.]+)"
+        r"Qt'y\s*\(mt\)\s*([\d.]+)"
+        # r"Qt['’]?\s*\(mt\.*\)\s*[:\-]?\s*([\d,.]+)",
+        # r"Quantity\s*[:\-]?\s*([\d,.]+)\s*(?:KG|kg|MT|mt)",
+        # r"Qty\s*[:\-]?\s*([\d,.]+)"
     ])
     unit_price = extract_field_by_regex(ocr_text, [
-        # r"Unit Price\s*\([^)]+\)\s*([\d,.]+)"
-        r"Unit\s*Price\s*\([^)]+\)\s*[:\-]?\s*([\d,.]+)",
-        r"Unit\s*Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)",
-        r"Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)"
+        r"Unit Price\s*\([^)]+\)\s*([\d,.]+)"
+        # r"Unit\s*Price\s*\([^)]+\)\s*[:\-]?\s*([\d,.]+)",
+        # r"Unit\s*Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)",
+        # r"Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)"
     ])
     amount = extract_field_by_regex(ocr_text, [
-        # r"Total Amount\s*([\d,.]+)"
-        r"Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
-        r"Amount\s*[:\-]?\s*([\d,.]+)",
-        r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)"
+        r"Total Amount\s*([\d,.]+)"
+        # r"Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
+        # r"Amount\s*[:\-]?\s*([\d,.]+)",
+        # r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)"
     ])
     
     if grade:
@@ -356,39 +356,39 @@ def extract_format3_data(ocr_text: str) -> Dict[str, Any]:
     
     # 合計金額の抽出
     result["totalAmount"] = extract_field_by_regex(ocr_text, [
-        # r"TOTAL.*?USD\s*([\d,.]+)",
-        # r"Total Amount\s*USD\s*([\d,.]+)",
-        # r"Total Amount\s*([\d,.]+)"
-        r"TOTAL\s*USD\s*[:\-]?\s*([\d,.]+)",
-        r"Total\s*Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
-        r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)",
-        r"Grand\s*Total\s*[:\-]?\s*USD\s*([\d,.]+)"
+        r"TOTAL.*?USD\s*([\d,.]+)",
+        r"Total Amount\s*USD\s*([\d,.]+)",
+        r"Total Amount\s*([\d,.]+)"
+        # r"TOTAL\s*USD\s*[:\-]?\s*([\d,.]+)",
+        # r"Total\s*Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
+        # r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)",
+        # r"Grand\s*Total\s*[:\-]?\s*USD\s*([\d,.]+)"
     ])
     
     # 支払条件の抽出
     result["paymentTerms"] = extract_field_by_regex(ocr_text, [
-        # r"Payment term\s*\n?\s*(.*?)(?:\n|$)",
-        # r"Payment\s*:\s*(.*?)(?:\n|$)"
-        r"Payment\s*(?:term|terms?)\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"Terms\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"Payment\s*[:\-]?\s*(.*?)(?:\n|$)"
+        r"Payment term\s*\n?\s*(.*?)(?:\n|$)",
+        r"Payment\s*:\s*(.*?)(?:\n|$)"
+        # r"Payment\s*(?:term|terms?)\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"Terms\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"Payment\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     # 出荷条件の抽出
     result["terms"] = extract_field_by_regex(ocr_text, [
-        # r"Term\s*(.*?)(?:\n|$)",
-        # r"CIF\s+(.*?)(?:\n|PORT)"
-        r"Term\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"(?:CIF|FOB|EXW)\s+[A-Z\s]+"
+        r"Term\s*(.*?)(?:\n|$)",
+        r"CIF\s+(.*?)(?:\n|PORT)"
+        # r"Term\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"(?:CIF|FOB|EXW)\s+[A-Z\s]+"
     ])
     
     # 配送先の抽出
     result["destination"] = extract_field_by_regex(ocr_text, [
-        # r"PORT OF DISCHARGE\s*(.*?)(?:\n|$)",
-        # r"PORT OF\s*DISCHARGE\s*(.*?)(?:\n|Payment)"
-        r"PORT\s+OF\s+DISCHARGE\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"Discharge\s+Port\s*[:\-]?\s*(.*?)(?:\n|$)",
-        r"Destination\s*[:\-]?\s*(.*?)(?:\n|$)"
+        r"PORT OF DISCHARGE\s*(.*?)(?:\n|$)",
+        r"PORT OF\s*DISCHARGE\s*(.*?)(?:\n|Payment)"
+        # r"PORT\s+OF\s+DISCHARGE\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"Discharge\s+Port\s*[:\-]?\s*(.*?)(?:\n|$)",
+        # r"Destination\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     return result
