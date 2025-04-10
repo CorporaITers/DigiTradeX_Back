@@ -110,7 +110,8 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     # 顧客名の抽出
     result["customer"] = extract_field_by_regex(ocr_text, [
         # r"ABC Company\s*(.*?)(?:\n|$)",
-        r"\(Buyer(?:'|')s Info\).*?([A-Za-z0-9\s]+Company)"
+        # r"\(Buyer(?:'|')s Info\).*?([A-Za-z0-9\s]+Company)"
+        r"Buyer[’']s Info.*?([A-Za-z0-9\s&.,\-]+(?:Company|Co\.?|Ltd\.?|Inc\.?|Corporation|LLC|Limited))"
     ])
     
     # PO番号の抽出
