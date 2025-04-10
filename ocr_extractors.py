@@ -109,7 +109,7 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     
     # 顧客名の抽出
     result["customer"] = extract_field_by_regex(ocr_text, [
-        r"ABC Company\s*(.*?)(?:\n|$)",
+        # r"ABC Company\s*(.*?)(?:\n|$)",
         r"\(Buyer(?:'|')s Info\).*?([A-Za-z0-9\s]+Company)"
     ])
     
@@ -155,8 +155,10 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     
     # 合計金額の抽出
     result["totalAmount"] = extract_field_by_regex(ocr_text, [
-        r"TOTAL\s*([\d,.]+)",
-        r"Total:?\s*([\d,.]+)"
+        # r"TOTAL\s*([\d,.]+)",
+        # r"Total:?\s*([\d,.]+)"
+        r"TOTAL\s*\s*((?:\d{1,3}(?:,\d{3})*)",
+        r"Total:?\s*\s*((?:\d{1,3}(?:,\d{3})*)"
     ])
     
     # 支払条件の抽出
