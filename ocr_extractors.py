@@ -158,8 +158,8 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     result["totalAmount"] = extract_field_by_regex(ocr_text, [
         # r"TOTAL\s*([\d,.]+)",
         # r"Total:?\s*([\d,.]+)"
-        r"TOTAL\s*\s*((?:\d{1,3}(?:,\d{3})*)",
-        r"Total:?\s*\s*((?:\d{1,3}(?:,\d{3})*)"
+        r"TOTAL\s*\s*((?:\d{1,3}(?:,\d{3})*)?)"
+        r"Total:?\s*\s*((?:\d{1,3}(?:,\d{3})*)?)"
     ])
     
     # 支払条件の抽出
