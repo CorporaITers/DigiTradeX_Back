@@ -89,6 +89,13 @@ def extract_field_by_regex(ocr_text: str, patterns: List[str], default_value: st
             return value
     return default_value
 
+def preprocess_ocr_text(text: str) -> str:
+    # 見えない文字や数字の途中の改行・スペースを削除
+    text = text.replace('\u200b', '').replace('\xa0', ' ')
+    text = re.sub(r'(?<=\d)[ \n\r]+(?=\d)', '', text)  # 数字の途中の改行・空白を除去
+    text = re.sub(r'\s+', ' ', text)  # 全体の空白統一
+    return text.strip()
+
 def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     """
     フォーマット1（Buyer's Info）からデータを抽出します
@@ -96,6 +103,9 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     :param ocr_text: OCRで抽出したテキスト
     :return: 構造化されたデータ
     """
+    # ⭐ OCR出力を正規化
+    ocr_text = preprocess_ocr_text(ocr_text)
+
     result = {
         "customer": "",
         "poNumber": "",
