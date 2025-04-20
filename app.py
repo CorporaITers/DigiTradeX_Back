@@ -1,5 +1,5 @@
 # app.py
-from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, BackgroundTasks, Request, Query
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, BackgroundTasks, Request, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -20,6 +20,8 @@ import schemas
 from auth import create_access_token, get_password_hash, verify_password, get_current_user
 from ocr_service import process_document, extract_po_data
 import config
+from auth import oauth2_scheme  # ← ここでインポート！
+from jose import JWTError, jwt
 
 # ロギングの設定
 logging.basicConfig(
@@ -63,6 +65,24 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.get("/api/auth/verify")
+def verify_token(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(
+            token,
+            config.SECRET_KEY,
+            algorithms=[config.ALGORITHM]
+        )
+        # exp（有効期限）は jose ライブラリが自動で検証します
+        return {"valid": True}
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="トークンが無効または期限切れです",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 # 認証関連のエンドポイント
 @app.post("/api/auth/login", response_model=schemas.Token)
