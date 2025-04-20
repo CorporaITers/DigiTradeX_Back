@@ -96,6 +96,7 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     :param ocr_text: OCRで抽出したテキスト
     :return: 構造化されたデータ
     """
+
     result = {
         "customer": "",
         "poNumber": "",
@@ -109,8 +110,9 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
     
     # 顧客名の抽出
     result["customer"] = extract_field_by_regex(ocr_text, [
-        r"ABC Company\s*(.*?)(?:\n|$)",
-        r"\(Buyer(?:'|')s Info\).*?([A-Za-z0-9\s]+Company)"
+        # r"ABC Company\s*(.*?)(?:\n|$)",
+        # r"\(Buyer(?:'|')s Info\).*?([A-Za-z0-9\s]+Company)"
+        r"Buyer[’']s Info.*?([A-Za-z0-9\s&.,\-]+(?:Company|Co\.?|Ltd\.?|Inc\.?|Corporation|LLC|Limited))"
     ])
     
     # PO番号の抽出
@@ -144,7 +146,15 @@ def extract_format1_data(ocr_text: str) -> Dict[str, Any]:
         r"EXT Price:\s*([\d,.]+)",
         r"Amount:\s*([\d,.]+)"
     ])
-    
+
+    # カンマを削除する処理を追加
+    if quantity:
+        quantity = quantity.replace(',', '')  # 数量のカンマ削除
+    if unit_price:
+        unit_price = unit_price.replace(',', '')  # 単価のカンマ削除
+    if amount:
+        amount = amount.replace(',', '')  # 金額のカンマ削除
+
     if product_name:
         result["products"].append({
             "name": product_name,
@@ -257,7 +267,15 @@ def extract_format2_data(ocr_text: str) -> Dict[str, Any]:
                     "unitPrice": prices[i*2] if i*2 < len(prices) else "",
                     "amount": prices[i*2+1] if i*2+1 < len(prices) else ""
                 })
-    
+
+    # カンマを削除する処理を追加
+    if quantity:
+        quantity = quantity.replace(',', '')  # 数量のカンマ削除
+    if unit_price:
+        unit_price = unit_price.replace(',', '')  # 単価のカンマ削除
+    if amount:
+        amount = amount.replace(',', '')  # 金額のカンマ削除
+
     # 合計金額の抽出
     result["totalAmount"] = extract_field_by_regex(ocr_text, [
         r"Grand Total.*?US\$\s*([\d,]+)",
@@ -305,24 +323,46 @@ def extract_format3_data(ocr_text: str) -> Dict[str, Any]:
     
     # 顧客名の抽出
     result["customer"] = extract_field_by_regex(ocr_text, [
-        r"Contract Party\s*:\s*(.*?)(?:\n|$)",
-        r"B/L CONSIGNEE\s*:\s*(.*?)(?:\n|$)"
+        # r"Contract Party\s*:\s*(.*?)(?:\n|$)",
+        # r"B/L CONSIGNEE\s*:\s*(.*?)(?:\n|$)"
+        r"Contract\s+Party\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"B/L\s+CONSIGNEE\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     # PO番号の抽出
     result["poNumber"] = extract_field_by_regex(ocr_text, [
-        r"Order No\.\s*(.*?)(?:\n|Grade|Origin)",
-        r"Buyers(?:'|')?\s+Order No\.\s*(.*?)(?:\n|Grade|$)"
+        # r"Order No\.\s*(.*?)(?:\n|Grade|Origin)",
+        # r"Buyers(?:'|')?\s+Order No\.\s*(.*?)(?:\n|Grade|$)"
+        r"Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
+        r"Buyers(?:'|’)?\s+Order\s*No\.?\s*[:\-]?\s*([A-Z0-9\-]+)",
+        r"Order\s*Number\s*[:\-]?\s*([A-Z0-9\-]+)"
     ])
     
     # 通貨の抽出
     result["currency"] = "USD"  # フォーマット3ではUSDが明示的
     
     # 製品情報の抽出
-    grade = extract_field_by_regex(ocr_text, [r"Grade\s+([A-Za-z0-9]+)"])
-    quantity = extract_field_by_regex(ocr_text, [r"Qt'y\s*\(mt\)\s*([\d.]+)"])
-    unit_price = extract_field_by_regex(ocr_text, [r"Unit Price\s*\([^)]+\)\s*([\d,.]+)"])
-    amount = extract_field_by_regex(ocr_text, [r"Total Amount\s*([\d,.]+)"])
+    grade = extract_field_by_regex(ocr_text, [
+        r"Grade\s+([A-Za-z0-9]+)"
+    ])
+    quantity = extract_field_by_regex(ocr_text, [
+        # r"Qt'y\s*\(mt\)\s*([\d.]+)"
+        r"Qt['’]?\s*\(mt\.*\)\s*[:\-]?\s*([\d,.]+)",
+        r"Quantity\s*[:\-]?\s*([\d,.]+)\s*(?:KG|kg|MT|mt)",
+        r"Qty\s*[:\-]?\s*([\d,.]+)"
+    ])
+    unit_price = extract_field_by_regex(ocr_text, [
+        # r"Unit Price\s*\([^)]+\)\s*([\d,.]+)"
+        r"Unit\s*Price\s*\([^)]+\)\s*[:\-]?\s*([\d,.]+)",
+        r"Unit\s*Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)",
+        r"Price\s*[:\-]?\s*(?:USD|US\$)?\s*([\d,.]+)"
+    ])
+    amount = extract_field_by_regex(ocr_text, [
+        # r"Total Amount\s*([\d,.]+)"
+        r"Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
+        r"Amount\s*[:\-]?\s*([\d,.]+)",
+        r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)"
+    ])
     
     if grade:
         result["products"].append({
@@ -331,30 +371,50 @@ def extract_format3_data(ocr_text: str) -> Dict[str, Any]:
             "unitPrice": unit_price,
             "amount": amount
         })
-    
+
+    # カンマを削除する処理を追加
+    if quantity:
+        quantity = quantity.replace(',', '')  # 数量のカンマ削除
+    if unit_price:
+        unit_price = unit_price.replace(',', '')  # 単価のカンマ削除
+    if amount:
+        amount = amount.replace(',', '')  # 金額のカンマ削除
+
     # 合計金額の抽出
     result["totalAmount"] = extract_field_by_regex(ocr_text, [
-        r"TOTAL.*?USD\s*([\d,.]+)",
-        r"Total Amount\s*USD\s*([\d,.]+)",
-        r"Total Amount\s*([\d,.]+)"
+        # r"TOTAL.*?USD\s*([\d,.]+)",
+        # r"Total Amount\s*USD\s*([\d,.]+)",
+        # r"Total Amount\s*([\d,.]+)"
+        r"TOTAL\s*USD\s*[:\-]?\s*([\d,.]+)",
+        r"Total\s*Amount\s*[:\-]?\s*USD\s*([\d,.]+)",
+        r"Total\s*Amount\s*[:\-]?\s*([\d,.]+)",
+        r"Grand\s*Total\s*[:\-]?\s*USD\s*([\d,.]+)"
     ])
     
     # 支払条件の抽出
     result["paymentTerms"] = extract_field_by_regex(ocr_text, [
-        r"Payment term\s*\n?\s*(.*?)(?:\n|$)",
-        r"Payment\s*:\s*(.*?)(?:\n|$)"
+        # r"Payment term\s*\n?\s*(.*?)(?:\n|$)",
+        # r"Payment\s*:\s*(.*?)(?:\n|$)"
+        r"Payment\s*(?:term|terms?)\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"Terms\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"Payment\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     # 出荷条件の抽出
     result["terms"] = extract_field_by_regex(ocr_text, [
-        r"Term\s*(.*?)(?:\n|$)",
-        r"CIF\s+(.*?)(?:\n|PORT)"
+        # r"Term\s*(.*?)(?:\n|$)",
+        # r"CIF\s+(.*?)(?:\n|PORT)"
+        r"Term\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"(?:CIF|FOB|EXW)\s+[A-Z\s]+"
     ])
     
     # 配送先の抽出
     result["destination"] = extract_field_by_regex(ocr_text, [
-        r"PORT OF DISCHARGE\s*(.*?)(?:\n|$)",
-        r"PORT OF\s*DISCHARGE\s*(.*?)(?:\n|Payment)"
+        # r"PORT OF DISCHARGE\s*(.*?)(?:\n|$)",
+        # r"PORT OF\s*DISCHARGE\s*(.*?)(?:\n|Payment)"
+        r"PORT\s+OF\s+DISCHARGE\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"Discharge\s+Port\s*[:\-]?\s*(.*?)(?:\n|$)",
+        r"Destination\s*[:\-]?\s*(.*?)(?:\n|$)"
     ])
     
     return result
