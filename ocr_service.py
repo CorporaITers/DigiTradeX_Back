@@ -191,8 +191,8 @@ def validate_and_clean_result(result: Dict[str, Any]):
 
         # 金額のドル記号などを削除
         if product["unitPrice"]:
-            # 単価の調整: "per 1,000KG" または "per mt" が含まれている場合
-            if "per 1,000KG" in product["unitPrice"].lower() or "per mt" in product["unitPrice"].lower():
+            # 単価の調整: "1,000KG" または "mt" が含まれている場合
+            if "1,000kg" in product["unitPrice"].upper() or "mt" in product["unitPrice"].lower():
                 # 数値部分の抽出と変換
                 price_match = re.search(r'[\d,.]+', product["unitPrice"])
                 if price_match:
