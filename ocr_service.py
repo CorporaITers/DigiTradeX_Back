@@ -185,31 +185,10 @@ def validate_and_clean_result(result: Dict[str, Any]):
         if product["quantity"] and any(unit in product["quantity"] for unit in ["kg", "KG", "mt", "MT"]):
             product["quantity"] = re.sub(r'[^\d,.]', '', product["quantity"])
         
-        # # 金額のドル記号などを削除
-        # if product["unitPrice"] and any(symbol in product["unitPrice"] for symbol in ["$", "USD"]):
-        #     product["unitPrice"] = re.sub(r'[^\d,.]', '', product["unitPrice"])
+        # 金額のドル記号などを削除
+        if product["unitPrice"] and any(symbol in product["unitPrice"] for symbol in ["$", "USD"]):
+            product["unitPrice"] = re.sub(r'[^\d,.]', '', product["unitPrice"])
 
-        # 金額のドル記号などを削除
-        if product["unitPrice"]:
-            # 単価の調整: "1,000KG" または "mt" が含まれている場合
-            if "1,000kg" in product["unitPrice"].upper() or "mt" in product["unitPrice"].lower():
-                # 数値部分の抽出と変換
-                price_match = re.search(r'[\d,.]+', product["unitPrice"])
-                if price_match:
-                    try:
-                        unit_price = float(price_match.group().replace(",", ""))
-                        # 1000分の1に変換
-                        adjusted_price = unit_price / 1000
-                        product["unitPrice"] = f"{adjusted_price:.4f}"
-                    except ValueError:
-                        logger.warning(f"unitPriceの変換に失敗しました: {product['unitPrice']}")
-                else:
-                    product["unitPrice"] = re.sub(r'[^\d,.]', '', product["unitPrice"])
-            else:
-                # 通常のクリーニング
-                product["unitPrice"] = re.sub(r'[^\d,.]', '', product["unitPrice"])        
-        
-        # 金額のドル記号などを削除
         if product["amount"] and any(symbol in product["amount"] for symbol in ["$", "USD"]):
             product["amount"] = re.sub(r'[^\d,.]', '', product["amount"])
     
